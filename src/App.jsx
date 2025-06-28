@@ -2,13 +2,8 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
-import io from 'socket.io-client';
-
-// ✅ Use env variable from Vercel
+// ✅ Connect to backend via env variable
 const socket = io(import.meta.env.VITE_SOCKET_URL);
-
-
-// const socket = io('http://localhost:3000');
 
 function App() {
   const [symbol, setSymbol] = useState('');
@@ -51,11 +46,22 @@ function App() {
     });
 
     socket.on('full', () => {
-      setMessage("Room is full.");
+      setMessage("❌ Room is full.");
+      setJoined(false);
+    });
+
+    socket.on('noRoom', () => {
+      setMessage("❌ Room doesn't exist.");
+      setJoined(false);
+    });
+
+    socket.on('roomExists', () => {
+      setMessage("❌ Room already exists. Try a different code.");
+      setJoined(false);
     });
 
     return () => socket.off();
-  }, []);
+  }, [symbol]);
 
   const checkWinner = (b) => {
     const lines = [
@@ -86,7 +92,13 @@ function App() {
 
   const joinRoom = () => {
     if (!roomId) return;
-    socket.emit('joinRoom', roomId);
+
+    if (joiningMode === 'create') {
+      socket.emit('createRoom', roomId);
+    } else {
+      socket.emit('joinRoom', roomId);
+    }
+
     setJoined(true);
   };
 
@@ -121,6 +133,7 @@ function App() {
               <button style={styles.secondaryButton} onClick={() => setJoiningMode(null)}>Back</button>
             </>
           )}
+          {message && <p>{message}</p>}
         </div>
       </div>
     );
