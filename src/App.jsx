@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
-const socket = io('http://localhost:3000');
+import io from 'socket.io-client';
+
+// ✅ Use env variable from Vercel
+const socket = io(import.meta.env.VITE_SOCKET_URL);
+
+
+// const socket = io('http://localhost:3000');
 
 function App() {
   const [symbol, setSymbol] = useState('');
