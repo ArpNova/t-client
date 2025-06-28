@@ -24,6 +24,15 @@ function App() {
       setMessage(`You are ${symbol}`);
     });
 
+    socket.on('restartGame', ({ symbol, board, currentPlayer }) => {
+      setSymbol(symbol);
+      setBoard(board);
+      setCurrentPlayer(currentPlayer);
+      setWinner(null);
+      setMessage(`You are ${symbol}`);
+    });
+    
+
     socket.on('updateBoard', ({ board, currentPlayer }) => {
       setBoard(board);
       setCurrentPlayer(currentPlayer);
