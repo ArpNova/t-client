@@ -21,7 +21,7 @@ function App() {
       setCurrentPlayer(currentPlayer);
       setWinner(null);
 
-      // ✅ New message logic
+      //  New message logic
       if ((symbol === 'X' && currentPlayer === 'X') || (symbol === 'O' && !board.includes('X') && !board.includes('O'))) {
         setMessage('Waiting for opponent to join...');
       } else {
