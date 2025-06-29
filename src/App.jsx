@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import confetti from 'canvas-confetti';
 
-// ✅ Connect to backend via env variable
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
 function App() {
   const [symbol, setSymbol] = useState('');
   const [roomId, setRoomId] = useState('');
   const [joined, setJoined] = useState(false);
-  const [joiningMode, setJoiningMode] = useState(null); // 'create' or 'join'
+  const [joiningMode, setJoiningMode] = useState(null);
   const [board, setBoard] = useState(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState('');
   const [winner, setWinner] = useState(null);
@@ -21,17 +20,14 @@ function App() {
       setBoard(board);
       setCurrentPlayer(currentPlayer);
       setWinner(null);
-      setMessage(`You are ${symbol}`);
-    });
 
-    socket.on('restartGame', ({ symbol, board, currentPlayer }) => {
-      setSymbol(symbol);
-      setBoard(board);
-      setCurrentPlayer(currentPlayer);
-      setWinner(null);
-      setMessage(`You are ${symbol}`);
+      // ✅ New message logic
+      if ((symbol === 'X' && currentPlayer === 'X') || (symbol === 'O' && !board.includes('X') && !board.includes('O'))) {
+        setMessage('Waiting for opponent to join...');
+      } else {
+        setMessage(`You are ${symbol}`);
+      }
     });
-    
 
     socket.on('updateBoard', ({ board, currentPlayer }) => {
       setBoard(board);
@@ -48,6 +44,14 @@ function App() {
       } else {
         setMessage(`You are ${symbol}`);
       }
+    });
+
+    socket.on('restartGame', ({ symbol, board, currentPlayer }) => {
+      setSymbol(symbol);
+      setBoard(board);
+      setCurrentPlayer(currentPlayer);
+      setWinner(null);
+      setMessage(`You are ${symbol}`);
     });
 
     socket.on('playerLeft', () => {
@@ -101,13 +105,11 @@ function App() {
 
   const joinRoom = () => {
     if (!roomId) return;
-
     if (joiningMode === 'create') {
       socket.emit('createRoom', roomId);
     } else {
       socket.emit('joinRoom', roomId);
     }
-
     setJoined(true);
   };
 
